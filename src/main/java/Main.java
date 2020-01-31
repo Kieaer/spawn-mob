@@ -94,9 +94,28 @@ public class Main extends Plugin {
                     player.sendMessage("Avaliable team: sharded, blue, crux, derelict, green, purple");
                     return;
             }
+            
+            float x;
+            float y;
+            if (arg[2] == "~" && arg[3] == "~") {
+                arg[2] = String.valueOf(player.x);
+                arg[3] = String.valueOf(player.y);
+            }
+            if (arg[2].equals("~") && arg[3].equals("~"){
+                x = player.getX();
+                y = player.getY();
+            } else {
+                try{
+                    x = Float.parseFloat(arg[2]);
+                    y = Float.parseFloat(arg[3]);
+                } catch (NumberFormatException error){
+                    player.sendMessage("x, y value must be number!");
+                    return;
+                }
+            }
             for (int i = 0; count > i; i++) {
                 BaseUnit baseUnit = targetunit.create(targetteam);
-                baseUnit.set(Float.parseFloat(arg[2]), Float.parseFloat(arg[3]));
+                baseUnit.set(x, y);
                 baseUnit.add();
             }
         });
