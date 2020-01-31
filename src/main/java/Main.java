@@ -94,6 +94,10 @@ public class Main extends Plugin {
                     player.sendMessage("Avaliable team: sharded, blue, crux, derelict, green, purple");
                     return;
             }
+            if (arg[2] == "~" && arg[3] == "~") {
+                arg[2] = String.valueOf(player.x);
+                arg[3] = String.valueOf(player.y);
+            }
             for (int i = 0; count > i; i++) {
                 BaseUnit baseUnit = targetunit.create(targetteam);
                 baseUnit.set(Float.parseFloat(arg[2]), Float.parseFloat(arg[3]));
