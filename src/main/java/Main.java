@@ -12,6 +12,10 @@ public class Main extends Plugin {
     @Override
     public void registerClientCommands(CommandHandler handler){
         handler.<Player>register("spawn", "<mob_name> <count> <x> <y> <team>", "Spawn mob in player position", (arg, player) -> {
+            if(!player.isAdmin){
+                player.sendMessage("You're not admin!");
+                return;
+            }
             UnitType targetunit;
             switch (arg[0]) {
                 case "draug":
@@ -97,11 +101,7 @@ public class Main extends Plugin {
             
             float x;
             float y;
-            if (arg[2] == "~" && arg[3] == "~") {
-                arg[2] = String.valueOf(player.x);
-                arg[3] = String.valueOf(player.y);
-            }
-            if (arg[2].equals("~") && arg[3].equals("~"){
+            if (arg[2].equals("~") && arg[3].equals("~")){
                 x = player.getX();
                 y = player.getY();
             } else {
