@@ -1,27 +1,30 @@
-apply plugin: "java"
+plugins {
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
 
-version '1.0'
-
-sourceCompatibility = 1.8
-
-repositories{
+repositories {
     mavenCentral()
-    maven{ url 'https://jitpack.io' }
+    jcenter()
+    maven { url 'https://www.jitpack.io' }
 }
 
-ext{
-    //the build number that this plugin is made for
-    mindustryVersion = 'v103'
+dependencies {
+    compileOnly 'com.github.Anuken.Arc:arc-core:v104.6'
+    compileOnly 'com.github.Anuken.Mindustry:core:v104.6'
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.30.1'
 }
 
-dependencies{
-    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
+jar {
+    enabled = false
+    dependsOn(shadowJar)
 }
 
-jar{
-    version = null
-    from{
-        configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
-    }
+shadowJar {
+    archiveFileName = "${project.archivesBaseName}.jar"
+    minimize()
+}
+
+compileJava {
+    options.encoding = "UTF-8"
 }
