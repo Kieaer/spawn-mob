@@ -1,4 +1,7 @@
+import arc.ApplicationListener;
+import arc.Core;
 import arc.util.CommandHandler;
+import mindustry.Vars;
 import mindustry.content.UnitTypes;
 import mindustry.entities.type.BaseUnit;
 import mindustry.entities.type.Player;
@@ -11,62 +14,18 @@ public class Main extends Plugin {
 
     @Override
     public void registerClientCommands(CommandHandler handler){
-        handler.<Player>register("spawn", "<mob_name> <count> <x> <y> <team>", "Spawn mob in player position", (arg, player) -> {
+        handler.<Player>register("spawn", "<mob_name> <count> <team>", "Spawn mob in player position", (arg, player) -> {
             if(!player.isAdmin){
                 player.sendMessage("You're not admin!");
                 return;
             }
-            UnitType targetunit;
-            switch (arg[0]) {
-                case "draug":
-                    targetunit = UnitTypes.draug;
-                    break;
-                case "spirit":
-                    targetunit = UnitTypes.spirit;
-                    break;
-                case "phantom":
-                    targetunit = UnitTypes.phantom;
-                    break;
-                case "wraith":
-                    targetunit = UnitTypes.wraith;
-                    break;
-                case "ghoul":
-                    targetunit = UnitTypes.ghoul;
-                    break;
-                case "revenant":
-                    targetunit = UnitTypes.revenant;
-                    break;
-                case "lich":
-                    targetunit = UnitTypes.lich;
-                    break;
-                case "reaper":
-                    targetunit = UnitTypes.reaper;
-                    break;
-                case "dagger":
-                    targetunit = UnitTypes.dagger;
-                    break;
-                case "crawler":
-                    targetunit = UnitTypes.crawler;
-                    break;
-                case "titan":
-                    targetunit = UnitTypes.titan;
-                    break;
-                case "fortress":
-                    targetunit = UnitTypes.fortress;
-                    break;
-                case "eruptor":
-                    targetunit = UnitTypes.eruptor;
-                    break;
-                case "chaosArray":
-                    targetunit = UnitTypes.chaosArray;
-                    break;
-                case "eradicator":
-                    targetunit = UnitTypes.eradicator;
-                    break;
-                default:
-                    player.sendMessage("Mob name not found! avaliable mob name: draug, spirit, phantom, wraith, ghoul, revenant, lich, reaper, dagger, crawler, titan, fortress, eruptor, chaosArray, eradicator");
-                    return;
+
+            UnitType unit = Vars.content.units().find(unitType -> unitType.name.equals(arg[0]));
+            if(unit == null) {
+                player.sendMessage("Mob name not found! avaliable mob name: draug, spirit, phantom, wraith, ghoul, revenant, lich, reaper, dagger, crawler, titan, fortress, eruptor, chaosArray, eradicator");
+                return;
             }
+
             int count;
             try {
                 count = Integer.parseInt(arg[1]);
@@ -74,50 +33,50 @@ public class Main extends Plugin {
                 player.sendMessage("The number of mobs must be a number!");
                 return;
             }
-            Team targetteam;
+            Team team;
             switch (arg[4]) {
                 case "sharded":
-                    targetteam = Team.sharded;
+                    team = Team.sharded;
                     break;
                 case "blue":
-                    targetteam = Team.blue;
+                    team = Team.blue;
                     break;
                 case "crux":
-                    targetteam = Team.crux;
+                    team = Team.crux;
                     break;
                 case "derelict":
-                    targetteam = Team.derelict;
+                    team = Team.derelict;
                     break;
                 case "green":
-                    targetteam = Team.green;
+                    team = Team.green;
                     break;
                 case "purple":
-                    targetteam = Team.purple;
+                    team = Team.purple;
                     break;
                 default:
                     player.sendMessage("Avaliable team: sharded, blue, crux, derelict, green, purple");
                     return;
             }
-            
-            float x;
-            float y;
-            if (arg[2].equals("~") && arg[3].equals("~")){
-                x = player.getX();
-                y = player.getY();
-            } else {
-                try{
-                    x = Float.parseFloat(arg[2]);
-                    y = Float.parseFloat(arg[3]);
-                } catch (NumberFormatException error){
-                    player.sendMessage("x, y value must be number!");
-                    return;
-                }
-            }
+
             for (int i = 0; count > i; i++) {
-                BaseUnit baseUnit = targetunit.create(targetteam);
-                baseUnit.set(x, y);
+                BaseUnit baseUnit = unit.create(team);
+                baseUnit.set(player.x, player.y);
                 baseUnit.add();
             }
+
+            new Thread(() -> {
+                ApplicationListener listener = new ApplicationListener() {
+                    @Override
+                    public void update() {
+                        player.heal();
+                    }
+                };
+                Core.app.addListener(listener);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ignored) {}
+                Core.app.removeListener(listener);
+            }).start();
         });
     }
 }
