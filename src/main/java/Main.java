@@ -1,21 +1,16 @@
-import arc.ApplicationListener;
-import arc.Core;
 import arc.util.CommandHandler;
 import mindustry.Vars;
-import mindustry.content.UnitTypes;
-import mindustry.entities.type.BaseUnit;
-import mindustry.entities.type.Player;
 import mindustry.game.Team;
-import mindustry.plugin.Plugin;
+import mindustry.gen.Playerc;
+import mindustry.gen.Unit;
+import mindustry.mod.Plugin;
 import mindustry.type.UnitType;
 
 public class Main extends Plugin {
-    public Main(){}
-
     @Override
     public void registerClientCommands(CommandHandler handler){
-        handler.<Player>register("spawn", "<mob_name> <count> <team>", "Spawn mob in player position", (arg, player) -> {
-            if(!player.isAdmin){
+        handler.<Playerc>register("spawn", "<mob_name> <count> <team>", "Spawn mob in player position", (arg, player) -> {
+            if(!player.admin()){
                 player.sendMessage("You're not admin!");
                 return;
             }
@@ -35,48 +30,23 @@ public class Main extends Plugin {
             }
             Team team;
             switch (arg[4]) {
-                case "sharded":
-                    team = Team.sharded;
-                    break;
-                case "blue":
-                    team = Team.blue;
-                    break;
-                case "crux":
-                    team = Team.crux;
-                    break;
-                case "derelict":
-                    team = Team.derelict;
-                    break;
-                case "green":
-                    team = Team.green;
-                    break;
-                case "purple":
-                    team = Team.purple;
-                    break;
-                default:
+                case "sharded" -> team = Team.sharded;
+                case "blue" -> team = Team.blue;
+                case "crux" -> team = Team.crux;
+                case "derelict" -> team = Team.derelict;
+                case "green" -> team = Team.green;
+                case "purple" -> team = Team.purple;
+                default -> {
                     player.sendMessage("Avaliable team: sharded, blue, crux, derelict, green, purple");
                     return;
+                }
             }
 
             for (int i = 0; count > i; i++) {
-                BaseUnit baseUnit = unit.create(team);
-                baseUnit.set(player.x, player.y);
+                Unit baseUnit = unit.create(team);
+                baseUnit.set(player.getX(), player.getY());
                 baseUnit.add();
             }
-
-            new Thread(() -> {
-                ApplicationListener listener = new ApplicationListener() {
-                    @Override
-                    public void update() {
-                        player.heal();
-                    }
-                };
-                Core.app.addListener(listener);
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ignored) {}
-                Core.app.removeListener(listener);
-            }).start();
         });
     }
 }

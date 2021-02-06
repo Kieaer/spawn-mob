@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 repositories {
@@ -10,19 +9,16 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.Anuken.Arc:arc-core:v121.4'
-    compileOnly 'com.github.Anuken.Mindustry:core:v121.4'
+    compileOnly 'com.github.Anuken.Arc:arc-core:+'
+    compileOnly 'com.github.Anuken.Mindustry:core:+'
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.30.1'
 }
 
 jar {
-    enabled = false
-    dependsOn(shadowJar)
-}
-
-shadowJar {
     archiveFileName = "${project.archivesBaseName}.jar"
-    minimize()
+    from{
+        configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+    }
 }
 
 compileJava {
